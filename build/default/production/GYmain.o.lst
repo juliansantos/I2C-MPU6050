@@ -1,0 +1,1186 @@
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001     #include "config.h"
+                      00001 
+                      00002 
+                      00003 #include "p18F2550.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : May 15 2016
+                      00005 ;  MPASM PIC18F2550 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2016 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      01578         LIST
+                      00004 
+                      00005 ; CONFIG1L
+00 00 19 1E 80 80 0F C00006   CONFIG  PLLDIV = 1            ; PLL Prescaler Selection bits (No prescale (4 MHz oscillator input driv
+                            es PLL directly))
+       0 0F E0 0F 40 
+                      00007   CONFIG  CPUDIV = OSC1_PLL2    ; System Clock Postscaler Selection bits ([Primary Oscillator Src: /1][9
+                            6 MHz PLL Src: /2])
+                      00008   CONFIG  USBDIV = 1            ; USB Clock Selection bit (used in Full-Speed USB mode only; UCFG:FSEN =
+                             1) (USB clock source comes directly from the primary oscillator block with no postscale)
+                      00009 
+                      00010 ; CONFIG1H
+                      00011   CONFIG  FOSC = XT_XT          ; Oscillator Selection bits (XT oscillator (XT))
+                      00012   CONFIG  FCMEN = OFF           ; Fail-Safe Clock Monitor Enable bit (Fail-Safe Clock Monitor disabled)
+                      00013   CONFIG  IESO = OFF            ; Internal/External Oscillator Switchover bit (Oscillator Switchover mod
+                            e disabled)
+                      00014 
+                      00015 ; CONFIG2L
+                      00016   CONFIG  PWRT = OFF            ; Power-up Timer Enable bit (PWRT disabled)
+                      00017   CONFIG  BOR = OFF             ; Brown-out Reset Enable bits (Brown-out Reset disabled in hardware and 
+                            software)
+                      00018   CONFIG  BORV = 3              ; Brown-out Reset Voltage bits (Minimum setting 2.05V)
+                      00019   CONFIG  VREGEN = OFF          ; USB Voltage Regulator Enable bit (USB voltage regulator disabled)
+                      00020 
+                      00021 ; CONFIG2H
+                      00022   CONFIG  WDT = OFF             ; Watchdog Timer Enable bit (WDT disabled (control is placed on the SWDT
+                            EN bit))
+                      00023   CONFIG  WDTPS = 32768         ; Watchdog Timer Postscale Select bits (1:32768)
+                      00024 
+                      00025 ; CONFIG3H
+                      00026   CONFIG  CCP2MX = OFF          ; CCP2 MUX bit (CCP2 input/output is multiplexed with RB3)
+                      00027   CONFIG  PBADEN = OFF          ; PORTB A/D Enable bit (PORTB<4:0> pins are configured as digital I/O on
+                             Reset)
+                      00028   CONFIG  LPT1OSC = OFF         ; Low-Power Timer 1 Oscillator Enable bit (Timer1 configured for higher 
+                            power operation)
+                      00029   CONFIG  MCLRE = ON            ; MCLR Pin Enable bit (MCLR pin enabled; RE3 input pin disabled)
+                      00030 
+                      00031 ; CONFIG4L
+                      00032   CONFIG  STVREN = OFF          ; Stack Full/Underflow Reset Enable bit (Stack full/underflow will not c
+                            ause Reset)
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00033   CONFIG  LVP = OFF             ; Single-Supply ICSP Enable bit (Single-Supply ICSP disabled)
+                      00034   CONFIG  XINST = OFF           ; Extended Instruction Set Enable bit (Instruction set extension and Ind
+                            exed Addressing mode disabled (Legacy mode))
+                      00035 
+                      00036 ; CONFIG5L
+                      00037   CONFIG  CP0 = OFF             ; Code Protection bit (Block 0 (000800-001FFFh) is not code-protected)
+                      00038   CONFIG  CP1 = OFF             ; Code Protection bit (Block 1 (002000-003FFFh) is not code-protected)
+                      00039   CONFIG  CP2 = OFF             ; Code Protection bit (Block 2 (004000-005FFFh) is not code-protected)
+                      00040   CONFIG  CP3 = OFF             ; Code Protection bit (Block 3 (006000-007FFFh) is not code-protected)
+                      00041 
+                      00042 ; CONFIG5H
+                      00043   CONFIG  CPB = OFF             ; Boot Block Code Protection bit (Boot block (000000-0007FFh) is not cod
+                            e-protected)
+                      00044   CONFIG  CPD = OFF             ; Data EEPROM Code Protection bit (Data EEPROM is not code-protected)
+                      00045 
+                      00046 ; CONFIG6L
+                      00047   CONFIG  WRT0 = OFF            ; Write Protection bit (Block 0 (000800-001FFFh) is not write-protected)
+                      00048   CONFIG  WRT1 = OFF            ; Write Protection bit (Block 1 (002000-003FFFh) is not write-protected)
+                      00049   CONFIG  WRT2 = OFF            ; Write Protection bit (Block 2 (004000-005FFFh) is not write-protected)
+                      00050   CONFIG  WRT3 = OFF            ; Write Protection bit (Block 3 (006000-007FFFh) is not write-protected)
+                      00051 
+                      00052 ; CONFIG6H
+                      00053   CONFIG  WRTC = OFF            ; Configuration Register Write Protection bit (Configuration registers (
+                            300000-3000FFh) are not write-protected)
+                      00054   CONFIG  WRTB = OFF            ; Boot Block Write Protection bit (Boot block (000000-0007FFh) is not wr
+                            ite-protected)
+                      00055   CONFIG  WRTD = OFF            ; Data EEPROM Write Protection bit (Data EEPROM is not write-protected)
+                      00056 
+                      00057 ; CONFIG7L
+                      00058   CONFIG  EBTR0 = OFF           ; Table Read Protection bit (Block 0 (000800-001FFFh) is not protected f
+                            rom table reads executed in other blocks)
+                      00059   CONFIG  EBTR1 = OFF           ; Table Read Protection bit (Block 1 (002000-003FFFh) is not protected f
+                            rom table reads executed in other blocks)
+                      00060   CONFIG  EBTR2 = OFF           ; Table Read Protection bit (Block 2 (004000-005FFFh) is not protected f
+                            rom table reads executed in other blocks)
+                      00061   CONFIG  EBTR3 = OFF           ; Table Read Protection bit (Block 3 (006000-007FFFh) is not protected f
+                            rom table reads executed in other blocks)
+                      00062 
+                      00063 ; CONFIG7H
+                      00064   CONFIG  EBTRB = OFF           ; Boot Block Table Read Protection bit (Boot block (000000-0007FFh) is n
+                            ot protected from table reads executed in other blocks)
+                      00065 
+                      00002     
+                      00003     ;Preprocessor directives for MPU-6050
+                      00004     #define dirGY521 0xD0
+                      00005     ; Name Pull-down AD0 
+                      00006     #define dirpower ; Register for manage the power of sensor '=0 to turn on'
+                      00007 
+                      00008     ;Preprocessor directive for I2C
+                      00009     #define I2CEN SSPCON1,SSPEN ; Enable module SSP
+                      00010     #define START SSPCON2,SEN ; Start
+                      00011     #define STOP SSPCON2,PEN ; Stop
+                      00012     #define RESTART SSPCON2,RSEN ; Restart 
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00013     #define RECIVE SSPCON2,RCEN ; Recive 
+                      00014     #define BUFFERFULL SSPSTAT,BF ; Buffer Full
+                      00015     #define trisSDA TRISB,RB0 ; Tristate SDA pin 
+                      00016     #define trisSCL TRISB,RB1 ; Tristate SCL pin
+                      00017     #define SlewRate SSPSTAT,SMP
+                      00018     #define FOSC 4000 ;(KHz)
+                      00019     #define BAUD 100 ;(KHz)
+                      00020     #define RXACK SSPCON2,ACKSTAT ; Bit for detecting ACK
+                      00021     
+                      00022     ;Preprocessor diretives for MCU
+                      00023     #define trisLED1 TRISA,RA0
+                      00024     #define trisLED2 TRISA,RA1
+                      00025     #define pinLED1 LATA,RA0
+                      00026     #define pinLED2 LATA,RA1
+                      00027     
+                      00028     CBLOCK 0x60
+  00000060            00029     accelerationX:2 ;Measure of acceleration in X  DIR 3B, 3C 
+  00000062            00030     accelerationY:2 ;Measure of acceleration in Y  DIR 3D, 3E
+  00000064            00031     accelerationZ:2 ;Measure of acceleration in Z  DIR 3F, 3G
+  00000066            00032     gyroX:2 ;Measure of gyro in X  DIR 43, 44
+  00000068            00033     gyroY:2 ;Measure of gyro in Y  DIR 45, 46 
+  0000006A            00034     gyroZ:2 ;Measure of gyro in Z  DIR 47, 48   
+  0000006C            00035     delayvar:3 ;Counter for generating delays
+  0000006F            00036     vardir
+                      00037     ENDC
+                      00038     
+000000                00039     org 0x00
+000000 EF06 F000      00040     goto main
+000008                00041     org 0x08
+000008 EF59 F000      00042     goto ISR
+                      00043     
+00000C                00044 main:
+00000C EC1C F000      00045     call initialconfig
+000010 EC21 F000      00046     call initialstates 
+000014 EC24 F000      00047     call configI2C ;---Initial configuration of the I2C
+000018 6F6F           00048     movwf vardir
+                      00049     
+00001A 80C5           00050 init:    bsf START ; Sending Start
+00001C EC31 F000      00051     call waitMSSP ; Waiting for complete the I2C process
+000020 0ED0           00052     movlw dirGY521 ; Sending the direction of the slave
+000022 EC2F F000      00053     call i2c_send_byte 
+000026 EC31 F000      00054     call waitMSSP ; Waiting for complete the I2C process
+00002A BCC5           00055     btfsc SSPCON2,ACKSTAT ; ACK? oh NACK?
+00002C EF36 F000      00056     goto failMSSP  ; was not recived and Acknowledge
+000030 EF3F F000      00057     goto LOL
+000034 EF06 F000      00058     goto main
+                      00059 
+                      00060 ;************************************************INITIAL CONFIGURATION SUBRUTINE    
+000038                00061 initialconfig:  ;--------Subrutine for initial configuration of PIC    
+000038 0E0F           00062     movlw 0x0F
+00003A 6EC1           00063     movwf ADCON1 ;Ports as digital instead of analogic
+00003C 9092           00064     bcf trisLED1 ; data direction pin LATCH
+00003E 9292           00065     bcf trisLED2 ; data direction pin DATA
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000040 0012           00066     return
+                      00067     
+000042                00068 initialstates: ;---------Subrutine for setting the initial states of PIC
+000042 9289           00069     bcf pinLED2  
+000044 9089           00070     bcf pinLED1 
+000046 0012           00071     return
+                      00072     
+                      00073 ;*******************************SUBRUTINE FOR THE INITIAL CONFIGURATION OF I2C     
+000048                00074 configI2C:
+000048 8AC6           00075     bsf I2CEN ; Turn ON module SSP
+00004A 90C6           00076     bcf SSPCON1,SSPM0 ; Mode=8 'Master mode'
+00004C 92C6           00077     bcf SSPCON1,SSPM1
+00004E 94C6           00078     bcf SSPCON1,SSPM2
+000050 86C6           00079     bsf SSPCON1,SSPM3
+000052 8093           00080     bsf trisSDA ; SDA as an input pin 
+000054 8293           00081     bsf trisSCL ; SDL as an input pin
+000056 8EC7           00082     bsf SlewRate ; Disenable faster mode (Not neccesary at this frecuency )
+                      00083     ;movlw (FOSC/(4*BAUD))-1
+000058 0E09           00084     movlw 0x09
+00005A 6EC8           00085     movwf SSPADD  ; Setting the baud rate    
+00005C 0C00           00086     retlw 0
+                      00087     
+                      00088 ;***********************************SUBRUTINE TO SEND DATA THROUGHT A I2C BUS
+00005E                00089 i2c_send_byte:
+00005E 6EC9           00090     movwf SSPBUF
+000060 0C00           00091     retlw 0
+                      00092     
+                      00093 ;***********************************SUBRUTINE TO WAIT A COMPLETE ACTION OF I2C
+000062                00094 waitMSSP:
+000062 A69E           00095     btfss PIR1,SSPIF
+000064 EF31 F000      00096     goto waitMSSP
+000068 969E           00097     bcf PIR1,SSPIF
+00006A 0C00           00098     retlw 0
+                      00099     
+                      00100 ;******************************SUBRUTINE (IT has not recived an acknowledge)    
+00006C                00101 failMSSP:
+00006C 7289           00102     btg pinLED2
+00006E 0E30           00103     movlw 30
+000070 EC53 F000      00104     call delayW0ms
+000074 84C5           00105     bsf STOP
+000076 EC31 F000      00106     call waitMSSP
+00007A EF0D F000      00107     goto init
+                      00108     
+                      00109 ;*******************************SUBRUTINE (SUCCESS OF IDENTIFICATION FROM SLAVE)    
+00007E                00110 LOL:
+00007E 8089           00111     bsf pinLED1
+000080 84C5           00112     bsf STOP
+000082 EC31 F000      00113     call waitMSSP
+000086 EF43 F000      00114     goto $
+                      00115 
+                      00116 ;*****************************;---------------------------- Generating a delay
+00008A                00117 delay10ms:  ;4MHz frecuency oscillator
+00008A 0E54           00118     movlw d'84'  ;A Value
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00008C 6F6D           00119     movwf delayvar+1
+00008E 0E26           00120 d0:   movlw d'38' ;B Value
+000090 6F6C           00121     movwf delayvar  
+000092 0000           00122     nop
+000094 2F6C           00123 d1:  decfsz delayvar,F
+000096 D7FE           00124     bra d1
+000098 2F6D           00125     decfsz delayvar+1,F
+00009A D7F9           00126     bra d0      
+00009C 0012           00127     return ;2+1+1+A[1+1+1+B+1+2B-2]+A+1+2A-2+2 => 5+A[5+3B]
+00009E                00128 delay: ;300 ms delay
+00009E 0E0A           00129     movlw .10
+0000A0 EC53 F000      00130     call delayW0ms
+0000A4 0012           00131     return
+                      00132     
+0000A6                00133 delayW0ms: ;It is neccesary load a properly value in the acumulator before use this subrutine
+0000A6 6F6E           00134     movwf delayvar+2
+0000A8 EC45 F000      00135 d2:    call delay10ms
+0000AC 2F6E           00136     decfsz delayvar+2,F
+0000AE D7FC           00137     bra d2
+0000B0 0012           00138     return     
+                      00139 ;*********************************************ISR RUTINE
+0000B2                00140 ISR:
+0000B2 0012           00141     return   
+                      00142     
+                      00143     END
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  6
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ACTVIE                            00000002
+ACTVIF                            00000002
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADDR0                             00000000
+ADDR1                             00000001
+ADDR2                             00000002
+ADDR3                             00000003
+ADDR4                             00000004
+ADDR5                             00000005
+ADDR6                             00000006
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AN0                               00000000
+AN1                               00000001
+AN2                               00000002
+AN3                               00000003
+AN4                               00000005
+BANKED                            00000001
+BAUD                              100
+BAUDCON                           00000FB8
+BAUDCTL                           00000FB8
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BSR                               00000FE0
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  7
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BTOEE                             00000004
+BTOEF                             00000004
+BTSEE                             00000007
+BTSEF                             00000007
+BUFFERFULL                        SSPSTAT,BF
+C                                 00000000
+C1INV                             00000004
+C1OUT                             00000006
+C2INV                             00000005
+C2OUT                             00000007
+CCP1                              00000002
+CCP1AS                            00000FB6
+CCP1CON                           00000FBD
+CCP1DEL                           00000FB7
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP2CON                           00000FBA
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000FBB
+CCPR2H                            00000FBC
+CCPR2L                            00000FBB
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CIS                               00000003
+CK                                00000006
+CKE                               00000006
+CKP                               00000004
+CM0                               00000000
+CM1                               00000001
+CM2                               00000002
+CMCON                             00000FB4
+CMIE                              00000006
+CMIF                              00000006
+CMIP                              00000006
+CRC16EE                           00000002
+CRC16EF                           00000002
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  8
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CRC5EE                            00000001
+CRC5EF                            00000001
+CREN                              00000004
+CSRC                              00000007
+CVR0                              00000000
+CVR1                              00000001
+CVR2                              00000002
+CVR3                              00000003
+CVRCON                            00000FB5
+CVREF                             00000004
+CVREN                             00000007
+CVROE                             00000006
+CVRR                              00000005
+CVRSS                             00000004
+D                                 00000005
+DATA_ADDRESS                      00000005
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DFN8EE                            00000003
+DFN8EF                            00000003
+DIR                               00000002
+DONE                              00000001
+D_A                               00000005
+D_NOT_A                           00000005
+ECCP1AS                           00000FB6
+ECCP1DEL                          00000FB7
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EEADR                             00000FA9
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+ENDP0                             00000003
+ENDP1                             00000004
+ENDP2                             00000005
+ENDP3                             00000006
+EPCONDIS                          00000003
+EPHSHK                            00000004
+EPINEN                            00000001
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  9
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+EPOUTEN                           00000002
+EPSTALL                           00000000
+FAST                              00000001
+FERR                              00000002
+FLTS                              00000002
+FOSC                              4000
+FREE                              00000004
+FRM0                              00000000
+FRM1                              00000001
+FRM10                             00000002
+FRM2                              00000002
+FRM3                              00000003
+FRM4                              00000004
+FRM5                              00000005
+FRM6                              00000006
+FRM7                              00000007
+FRM8                              00000000
+FRM9                              00000001
+FSEN                              00000002
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GIE_GIEH                          00000007
+GO                                00000001
+GO_DONE                           00000001
+GO_NOT_DONE                       00000001
+HLVDCON                           00000FD2
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+I2CEN                             SSPCON1,SSPEN
+I2C_DAT                           00000005
+I2C_READ                          00000002
+I2C_START                         00000003
+I2C_STOP                          00000004
+IDLEIE                            00000004
+IDLEIF                            00000004
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 10
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRVST                             00000005
+ISR                               000000B2
+IVRST                             00000005
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 11
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC6                             00000006
+LATC7                             00000007
+LOL                               0000007E
+LVDCON                            00000FD2
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_IPEN                          00000007
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+OERR                              00000001
+OSC2                              00000006
+OSCCON                            00000FD3
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+PC                                00000FF9
+PCFG0                             00000000
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 12
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PCFG1                             00000001
+PCFG2                             00000002
+PCFG3                             00000003
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PEIE                              00000006
+PEIE_GIEL                         00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PGM                               00000005
+PIDEE                             00000000
+PIDEF                             00000000
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIR1                              00000F9E
+PIR2                              00000FA1
+PKTDIS                            00000004
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PPB0                              00000000
+PPB1                              00000001
+PPBI                              00000001
+PPBRST                            00000006
+PR2                               00000FCB
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSSAC0                            00000002
+PSSAC1                            00000003
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 13
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC2                               00000002
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCMT                              00000006
+RCON                              00000FD0
+RCREG                             00000FAE
+RCSTA                             00000FAB
+RD                                00000000
+RD16                              00000007
+RE3                               00000003
+READ_WRITE                        00000002
+RECIVE                            SSPCON2,RCEN
+RESTART                           SSPCON2,RSEN
+RESUME                            00000002
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX9                               00000006
+RX9D                              00000000
+RXACK                             SSPCON2,ACKSTAT
+RXDTP                             00000005
+R_NOT_W                           00000002
+R_W                               00000002
+S                                 00000003
+SBOREN                            00000006
+SCKP                              00000004
+SCS0                              00000000
+SCS1                              00000001
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 14
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SE0                               00000005
+SEN                               00000000
+SENDB                             00000003
+SMP                               00000007
+SOFIE                             00000006
+SOFIF                             00000006
+SPBRG                             00000FAF
+SPBRGH                            00000FB0
+SPEN                              00000007
+SREN                              00000005
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STALLIE                           00000005
+STALLIF                           00000005
+START                             SSPCON2,SEN
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+STOP                              SSPCON2,PEN
+SUSPND                            00000001
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+SlewRate                          SSPSTAT,SMP
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0IP                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 15
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T0SE                              00000004
+T13CKI                            00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RUN                             00000006
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FCA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CCP1                            00000003
+T3CCP2                            00000006
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3NSYNC                           00000002
+T3SYNC                            00000002
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TMR0                              00000FD6
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1                              00000FCE
+TMR1CS                            00000001
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1ON                            00000000
+TMR2                              00000FCC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2ON                            00000002
+TMR3                              00000FB2
+TMR3CS                            00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 16
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3ON                            00000000
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TOUTPS0                           00000003
+TOUTPS1                           00000004
+TOUTPS2                           00000005
+TOUTPS3                           00000006
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC6                            00000006
+TRISC7                            00000007
+TRMT                              00000001
+TRNIE                             00000003
+TRNIF                             00000003
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TX                                00000006
+TX9                               00000006
+TX9D                              00000000
+TXCKP                             00000004
+TXEN                              00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 17
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TXSTA                             00000FAC
+UA                                00000001
+UADDR                             00000F6E
+UCFG                              00000F6F
+UCON                              00000F6D
+UEIE                              00000F6B
+UEIR                              00000F6A
+UEP0                              00000F70
+UEP1                              00000F71
+UEP10                             00000F7A
+UEP11                             00000F7B
+UEP12                             00000F7C
+UEP13                             00000F7D
+UEP14                             00000F7E
+UEP15                             00000F7F
+UEP2                              00000F72
+UEP3                              00000F73
+UEP4                              00000F74
+UEP5                              00000F75
+UEP6                              00000F76
+UEP7                              00000F77
+UEP8                              00000F78
+UEP9                              00000F79
+UERRIE                            00000001
+UERRIF                            00000001
+UFRM                              00000F66
+UFRMH                             00000F67
+UFRML                             00000F66
+UIE                               00000F69
+UIR                               00000F68
+UOEMON                            00000006
+UPUEN                             00000004
+URSTIE                            00000000
+URSTIF                            00000000
+USBEN                             00000003
+USBIE                             00000005
+USBIF                             00000005
+USBIP                             00000005
+USTAT                             00000F6C
+UTEYE                             00000007
+UTRDIS                            00000003
+VCFG0                             00000004
+VCFG1                             00000005
+VDIRMAG                           00000007
+VREFM                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 18
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+WUE                               00000001
+Z                                 00000002
+_BORV_0_2L                        000000E7
+_BORV_1_2L                        000000EF
+_BORV_2_2L                        000000F7
+_BORV_3_2L                        000000FF
+_BOR_OFF_2L                       000000F9
+_BOR_ON_2L                        000000FF
+_BOR_ON_ACTIVE_2L                 000000FD
+_BOR_SOFT_2L                      000000FB
+_CCP2MX_OFF_3H                    000000FE
+_CCP2MX_ON_3H                     000000FF
+_CONFIG1H                         00300001
+_CONFIG1L                         00300000
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_CPUDIV_OSC1_PLL2_1L              000000E7
+_CPUDIV_OSC2_PLL3_1L              000000EF
+_CPUDIV_OSC3_PLL4_1L              000000F7
+_CPUDIV_OSC4_PLL6_1L              000000FF
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 19
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECIO_EC_1H                  000000F4
+_FOSC_ECPLLIO_EC_1H               000000F6
+_FOSC_ECPLL_EC_1H                 000000F7
+_FOSC_EC_EC_1H                    000000F5
+_FOSC_HSPLL_HS_1H                 000000FE
+_FOSC_HS_1H                       000000FC
+_FOSC_INTOSCIO_EC_1H              000000F8
+_FOSC_INTOSC_EC_1H                000000F9
+_FOSC_INTOSC_HS_1H                000000FB
+_FOSC_INTOSC_XT_1H                000000FA
+_FOSC_XTPLL_XT_1H                 000000F2
+_FOSC_XT_XT_1H                    000000F0
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LPT1OSC_OFF_3H                   000000FB
+_LPT1OSC_ON_3H                    000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_OFF_3H                     0000007F
+_MCLRE_ON_3H                      000000FF
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLDIV_10_1L                     000000FE
+_PLLDIV_12_1L                     000000FF
+_PLLDIV_1_1L                      000000F8
+_PLLDIV_2_1L                      000000F9
+_PLLDIV_3_1L                      000000FA
+_PLLDIV_4_1L                      000000FB
+_PLLDIV_5_1L                      000000FC
+_PLLDIV_6_1L                      000000FD
+_PWRT_OFF_2L                      000000FF
+_PWRT_ON_2L                       000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_USBDIV_1_1L                      000000DF
+_USBDIV_2_1L                      000000FF
+_VREGEN_OFF_2L                    000000DF
+_VREGEN_ON_2L                     000000FF
+_WDTPS_1024_2H                    000000F5
+_WDTPS_128_2H                     000000EF
+_WDTPS_16384_2H                   000000FD
+_WDTPS_16_2H                      000000E9
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 20
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDTPS_1_2H                       000000E1
+_WDTPS_2048_2H                    000000F7
+_WDTPS_256_2H                     000000F1
+_WDTPS_2_2H                       000000E3
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000EB
+_WDTPS_4096_2H                    000000F9
+_WDTPS_4_2H                       000000E5
+_WDTPS_512_2H                     000000F3
+_WDTPS_64_2H                      000000ED
+_WDTPS_8192_2H                    000000FB
+_WDTPS_8_2H                       000000E7
+_WDT_OFF_2H                       000000FE
+_WDT_ON_2H                        000000FF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F2550                         00000001
+accelerationX                     00000060
+accelerationY                     00000062
+accelerationZ                     00000064
+configI2C                         00000048
+d0                                0000008E
+d1                                00000094
+d2                                000000A8
+delay                             0000009E
+delay10ms                         0000008A
+delayW0ms                         000000A6
+delayvar                          0000006C
+dirGY521                          0xD0
+dirpower                          
+failMSSP                          0000006C
+gyroX                             00000066
+gyroY                             00000068
+gyroZ                             0000006A
+i2c_send_byte                     0000005E
+init                              0000001A
+initialconfig                     00000038
+initialstates                     00000042
+main                              0000000C
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 21
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+pinLED1                           LATA,RA0
+pinLED2                           LATA,RA1
+trisLED1                          TRISA,RA0
+trisLED2                          TRISA,RA1
+trisSCL                           TRISB,RB1
+trisSDA                           TRISB,RB0
+vardir                            0000006F
+waitMSSP                          00000062
+
+
+MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
+0000 : XXXX----XXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXX------------
+0000 : XXXX-XX-XXXXXX-- ---------------- ---------------- ----------------
+
+All other memory blocks unused.
+
+Program Memory Bytes Used:   188
+Program Memory Bytes Free: 32580
+
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
