@@ -1,12 +1,12 @@
 MPLINK 5.08, LINKER
-Linker Map File - Created Sun Sep 18 13:34:22 2016
+Linker Map File - Created Sun Sep 18 16:45:54 2016
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000000
                    .org_1       code   0x000000    program   0x000004
-                   .org_2       code   0x000008    program   0x0000ac
+                   .org_2       code   0x000008    program   0x000182
   .config_300000_GYMAIN.O    romdata   0x300000    program   0x000001
   .config_300001_GYMAIN.O    romdata   0x300001    program   0x000001
   .config_300002_GYMAIN.O    romdata   0x300002    program   0x000001
@@ -26,33 +26,37 @@ Linker Map File - Created Sun Sep 18 13:34:22 2016
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000003      
-                            0x000008    0x0000b3      
+                            0x000008    0x000189      
                             0x300000    0x300003      
                             0x300005    0x300006      
                             0x300008    0x30000d      
-            188 out of 33048 program addresses used, program memory utilization is 0%
+            402 out of 33048 program addresses used, program memory utilization is 1%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                      ISR   0x0000b2    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                      LOL   0x00007e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                configI2C   0x000048    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d0   0x00008e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d1   0x000094    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d2   0x0000a8    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                    delay   0x00009e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                delay10ms   0x00008a    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                delayW0ms   0x0000a6    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                 failMSSP   0x00006c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            i2c_send_byte   0x00005e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                      ISR   0x000188    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                      LOL   0x000112    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                configI2C   0x0000c8    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d0   0x000128    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d1   0x00012e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d2   0x000142    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    delay   0x000138    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                delay10ms   0x000124    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                delayW0ms   0x000140    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 failMSSP   0x000100    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            i2c_send_byte   0x0000de    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
                      init   0x00001a    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            initialconfig   0x000038    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            initialstates   0x000042    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            initialconfig   0x00008c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            initialstates   0x00009c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    latch   0x000182    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
                      main   0x00000c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                 waitMSSP   0x000062    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                   pclock   0x00017c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    send8   0x000164    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 showdata   0x00014c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 waitMSSP   0x0000f0    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
 
 
 
@@ -61,19 +65,23 @@ Linker Map File - Created Sun Sep 18 13:34:22 2016
                 ---------  ---------  ---------  --------- ---------                
                      main   0x00000c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
                      init   0x00001a    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            initialconfig   0x000038    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            initialstates   0x000042    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                configI2C   0x000048    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-            i2c_send_byte   0x00005e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                 waitMSSP   0x000062    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                 failMSSP   0x00006c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                      LOL   0x00007e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                delay10ms   0x00008a    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d0   0x00008e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d1   0x000094    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                    delay   0x00009e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                delayW0ms   0x0000a6    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                       d2   0x0000a8    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
-                      ISR   0x0000b2    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            initialconfig   0x00008c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            initialstates   0x00009c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                configI2C   0x0000c8    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+            i2c_send_byte   0x0000de    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 waitMSSP   0x0000f0    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 failMSSP   0x000100    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                      LOL   0x000112    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                delay10ms   0x000124    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d0   0x000128    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d1   0x00012e    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    delay   0x000138    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                delayW0ms   0x000140    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                       d2   0x000142    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                 showdata   0x00014c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    send8   0x000164    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                   pclock   0x00017c    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                    latch   0x000182    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
+                      ISR   0x000188    program     static C:\Users\Julian Santos\MPLABXProjects\GY-521.X\GYmain.asm
 
 

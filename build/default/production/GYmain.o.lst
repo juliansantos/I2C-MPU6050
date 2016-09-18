@@ -1,4 +1,4 @@
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  1
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00031 ; CONFIG4L
                       00032   CONFIG  STVREN = OFF          ; Stack Full/Underflow Reset Enable bit (Stack full/underflow will not c
                             ause Reset)
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  2
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -107,165 +107,292 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00065 
                       00002     
                       00003     ;Preprocessor directives for MPU-6050
-                      00004     #define dirGY521 0xD0
-                      00005     ; Name Pull-down AD0 
-                      00006     #define dirpower ; Register for manage the power of sensor '=0 to turn on'
-                      00007 
-                      00008     ;Preprocessor directive for I2C
-                      00009     #define I2CEN SSPCON1,SSPEN ; Enable module SSP
-                      00010     #define START SSPCON2,SEN ; Start
-                      00011     #define STOP SSPCON2,PEN ; Stop
-                      00012     #define RESTART SSPCON2,RSEN ; Restart 
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  3
+                      00004     #define dirGY521 0xD0 ; to write
+                      00005     #define rGY521 0xD1 ; to read
+                      00006     ; Name Pull-down AD0 
+                      00007     #define dirPower 0x6B ; Register for manage the power of sensor '=0 to turn on'
+                      00008     #define acelx 0x3D
+                      00009 
+                      00010     ;Preprocessor directive for I2C
+                      00011     #define I2CEN SSPCON1,SSPEN ; Enable module SSP
+                      00012     #define START SSPCON2,SEN ; Start
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00013     #define RECIVE SSPCON2,RCEN ; Recive 
-                      00014     #define BUFFERFULL SSPSTAT,BF ; Buffer Full
-                      00015     #define trisSDA TRISB,RB0 ; Tristate SDA pin 
-                      00016     #define trisSCL TRISB,RB1 ; Tristate SCL pin
-                      00017     #define SlewRate SSPSTAT,SMP
-                      00018     #define FOSC 4000 ;(KHz)
-                      00019     #define BAUD 100 ;(KHz)
-                      00020     #define RXACK SSPCON2,ACKSTAT ; Bit for detecting ACK
-                      00021     
-                      00022     ;Preprocessor diretives for MCU
-                      00023     #define trisLED1 TRISA,RA0
-                      00024     #define trisLED2 TRISA,RA1
-                      00025     #define pinLED1 LATA,RA0
-                      00026     #define pinLED2 LATA,RA1
-                      00027     
-                      00028     CBLOCK 0x60
-  00000060            00029     accelerationX:2 ;Measure of acceleration in X  DIR 3B, 3C 
-  00000062            00030     accelerationY:2 ;Measure of acceleration in Y  DIR 3D, 3E
-  00000064            00031     accelerationZ:2 ;Measure of acceleration in Z  DIR 3F, 3G
-  00000066            00032     gyroX:2 ;Measure of gyro in X  DIR 43, 44
-  00000068            00033     gyroY:2 ;Measure of gyro in Y  DIR 45, 46 
-  0000006A            00034     gyroZ:2 ;Measure of gyro in Z  DIR 47, 48   
-  0000006C            00035     delayvar:3 ;Counter for generating delays
-  0000006F            00036     vardir
-                      00037     ENDC
-                      00038     
-000000                00039     org 0x00
-000000 EF06 F000      00040     goto main
-000008                00041     org 0x08
-000008 EF59 F000      00042     goto ISR
-                      00043     
-00000C                00044 main:
-00000C EC1C F000      00045     call initialconfig
-000010 EC21 F000      00046     call initialstates 
-000014 EC24 F000      00047     call configI2C ;---Initial configuration of the I2C
-000018 6F6F           00048     movwf vardir
-                      00049     
-00001A 80C5           00050 init:    bsf START ; Sending Start
-00001C EC31 F000      00051     call waitMSSP ; Waiting for complete the I2C process
-000020 0ED0           00052     movlw dirGY521 ; Sending the direction of the slave
-000022 EC2F F000      00053     call i2c_send_byte 
-000026 EC31 F000      00054     call waitMSSP ; Waiting for complete the I2C process
-00002A BCC5           00055     btfsc SSPCON2,ACKSTAT ; ACK? oh NACK?
-00002C EF36 F000      00056     goto failMSSP  ; was not recived and Acknowledge
-000030 EF3F F000      00057     goto LOL
-000034 EF06 F000      00058     goto main
-                      00059 
-                      00060 ;************************************************INITIAL CONFIGURATION SUBRUTINE    
-000038                00061 initialconfig:  ;--------Subrutine for initial configuration of PIC    
-000038 0E0F           00062     movlw 0x0F
-00003A 6EC1           00063     movwf ADCON1 ;Ports as digital instead of analogic
-00003C 9092           00064     bcf trisLED1 ; data direction pin LATCH
-00003E 9292           00065     bcf trisLED2 ; data direction pin DATA
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  4
+                      00013     #define STOP SSPCON2,PEN ; Stop
+                      00014     #define RESTART SSPCON2,RSEN ; Restart 
+                      00015     #define RECIVE SSPCON2,RCEN ; Recive 
+                      00016     #define BUFFERFULL SSPSTAT,BF ; Buffer Full
+                      00017     #define trisSDA TRISB,RB0 ; Tristate SDA pin 
+                      00018     #define trisSCL TRISB,RB1 ; Tristate SCL pin
+                      00019     #define SlewRate SSPSTAT,SMP
+                      00020     #define FOSC 4000 ;(KHz)
+                      00021     #define BAUD 100 ;(KHz)
+                      00022     #define RXACK SSPCON2,ACKSTAT ; Bit for detecting ACK
+                      00023     
+                      00024     ;Preprocessor diretives for MCU
+                      00025     #define trisLED1 TRISA,RA0
+                      00026     #define trisLED2 TRISA,RA1
+                      00027     #define pinLED1 LATA,RA0
+                      00028     #define pinLED2 LATA,RA1
+                      00029     
+                      00030     ;Preprocesor directives for 74595
+                      00031     #define trisLATCH TRISB,3
+                      00032     #define trisCLOCK TRISB,5
+                      00033     #define trisDATA TRISB,4
+                      00034     #define pinLATCH LATB,3
+                      00035     #define pinCLOCK LATB,5
+                      00036     #define pinDATA LATB,4
+                      00037     
+                      00038     CBLOCK 0x60
+  00000060            00039     accelerationX:2 ;Measure of acceleration in X  DIR 3B, 3C 
+  00000062            00040     accelerationY:2 ;Measure of acceleration in Y  DIR 3D, 3E
+  00000064            00041     accelerationZ:2 ;Measure of acceleration in Z  DIR 3F, 3G
+  00000066            00042     gyroX:2 ;Measure of gyro in X  DIR 43, 44
+  00000068            00043     gyroY:2 ;Measure of gyro in Y  DIR 45, 46 
+  0000006A            00044     gyroZ:2 ;Measure of gyro in Z  DIR 47, 48   
+  0000006C            00045     delayvar:3 ;Counter for generating delays
+  0000006F            00046     vardir
+  00000070            00047     sdata:2 ; State of 16 LED
+  00000072            00048     count8
+  00000073            00049     datatmp
+                      00050     ENDC
+                      00051     
+000000                00052     org 0x00
+000000 EF06 F000      00053     goto main
+000008                00054     org 0x08
+000008 EFC4 F000      00055     goto ISR
+                      00056     
+00000C                00057 main:
+00000C EC46 F000      00058     call initialconfig
+000010 EC4E F000      00059     call initialstates 
+000014 EC64 F000      00060     call configI2C ;---Initial configuration of the I2C
+000018 6F6F           00061     movwf vardir
+                      00062     
+00001A 80C5           00063 init:    bsf START ; Sending Start
+00001C EC78 F000      00064     call waitMSSP ; Waiting for complete the I2C process
+000020 0ED0           00065     movlw dirGY521 ; Sending the direction of the slave
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-000040 0012           00066     return
-                      00067     
-000042                00068 initialstates: ;---------Subrutine for setting the initial states of PIC
-000042 9289           00069     bcf pinLED2  
-000044 9089           00070     bcf pinLED1 
-000046 0012           00071     return
-                      00072     
-                      00073 ;*******************************SUBRUTINE FOR THE INITIAL CONFIGURATION OF I2C     
-000048                00074 configI2C:
-000048 8AC6           00075     bsf I2CEN ; Turn ON module SSP
-00004A 90C6           00076     bcf SSPCON1,SSPM0 ; Mode=8 'Master mode'
-00004C 92C6           00077     bcf SSPCON1,SSPM1
-00004E 94C6           00078     bcf SSPCON1,SSPM2
-000050 86C6           00079     bsf SSPCON1,SSPM3
-000052 8093           00080     bsf trisSDA ; SDA as an input pin 
-000054 8293           00081     bsf trisSCL ; SDL as an input pin
-000056 8EC7           00082     bsf SlewRate ; Disenable faster mode (Not neccesary at this frecuency )
-                      00083     ;movlw (FOSC/(4*BAUD))-1
-000058 0E09           00084     movlw 0x09
-00005A 6EC8           00085     movwf SSPADD  ; Setting the baud rate    
-00005C 0C00           00086     retlw 0
-                      00087     
-                      00088 ;***********************************SUBRUTINE TO SEND DATA THROUGHT A I2C BUS
-00005E                00089 i2c_send_byte:
-00005E 6EC9           00090     movwf SSPBUF
-000060 0C00           00091     retlw 0
-                      00092     
-                      00093 ;***********************************SUBRUTINE TO WAIT A COMPLETE ACTION OF I2C
-000062                00094 waitMSSP:
-000062 A69E           00095     btfss PIR1,SSPIF
-000064 EF31 F000      00096     goto waitMSSP
-000068 969E           00097     bcf PIR1,SSPIF
-00006A 0C00           00098     retlw 0
-                      00099     
-                      00100 ;******************************SUBRUTINE (IT has not recived an acknowledge)    
-00006C                00101 failMSSP:
-00006C 7289           00102     btg pinLED2
-00006E 0E30           00103     movlw 30
-000070 EC53 F000      00104     call delayW0ms
-000074 84C5           00105     bsf STOP
-000076 EC31 F000      00106     call waitMSSP
-00007A EF0D F000      00107     goto init
-                      00108     
-                      00109 ;*******************************SUBRUTINE (SUCCESS OF IDENTIFICATION FROM SLAVE)    
-00007E                00110 LOL:
-00007E 8089           00111     bsf pinLED1
-000080 84C5           00112     bsf STOP
-000082 EC31 F000      00113     call waitMSSP
-000086 EF43 F000      00114     goto $
-                      00115 
-                      00116 ;*****************************;---------------------------- Generating a delay
-00008A                00117 delay10ms:  ;4MHz frecuency oscillator
-00008A 0E54           00118     movlw d'84'  ;A Value
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  5
+000022 EC6F F000      00066     call i2c_send_byte 
+000026 0E6B           00067     movlw dirPower ;Sending the direction of power control register
+000028 EC6F F000      00068     call i2c_send_byte
+00002C 0E00           00069     movlw 0x00 
+00002E EC6F F000      00070     call i2c_send_byte ; writing 0 in a power control register
+000032 82C5           00071     bsf RESTART
+000034 EC78 F000      00072     call waitMSSP
+000038 0ED0           00073     movlw dirGY521 ; Sending the direction of the slave
+00003A EC6F F000      00074     call i2c_send_byte 
+00003E 0E3D           00075     movlw acelx 
+000040 EC6F F000      00076     call i2c_send_byte
+                      00077     
+000044 82C5           00078     bsf RESTART
+000046 EC78 F000      00079     call waitMSSP
+00004A 0ED1           00080     movlw rGY521
+00004C EC6F F000      00081     call i2c_send_byte
+000050 86C5           00082     bsf SSPCON2,RCEN 
+000052 EC78 F000      00083     call waitMSSP
+000056 8AC5           00084     bsf SSPCON2,ACKDT ; ACK DATA to send is 1, which is NACK.
+000058 88C5           00085     bsf SSPCON2,ACKEN ; Send ACK DATA now.
+00005A EC78 F000      00086     call waitMSSP
+00005E 50C9           00087     movf SSPBUF,W ; Get data from SSPBUF into W register
+000060 6F71           00088     movwf sdata+1
+                      00089    
+                      00090     ;here repet 
+000062 82C5           00091     bsf RESTART
+000064 EC78 F000      00092     call waitMSSP
+000068 0ED1           00093     movlw rGY521
+00006A EC6F F000      00094     call i2c_send_byte
+00006E 86C5           00095     bsf SSPCON2,RCEN 
+000070 EC78 F000      00096     call waitMSSP
+                      00097     
+000074 8AC5           00098     bsf SSPCON2,ACKDT ; ACK DATA to send is 1, which is NACK.
+000076 88C5           00099     bsf SSPCON2,ACKEN ; Send ACK DATA now.
+000078 EC78 F000      00100     call waitMSSP
+                      00101     
+00007C 50C9           00102     movf SSPBUF,W ; Get data from SSPBUF into W register
+00007E 6F70           00103     movwf sdata
+000080 ECA6 F000      00104     call showdata
+                      00105     
+000084 EF89 F000      00106     goto LOL
+000088 EF06 F000      00107     goto main
+                      00108 
+                      00109 ;************************************************INITIAL CONFIGURATION SUBRUTINE    
+00008C                00110 initialconfig:  ;--------Subrutine for initial configuration of PIC    
+00008C 0E0F           00111     movlw 0x0F
+00008E 6EC1           00112     movwf ADCON1 ;Ports as digital instead of analogic
+000090 9092           00113     bcf trisLED1 ; data direction pin LATCH
+000092 9292           00114     bcf trisLED2 ; data direction pin DATA
+000094 9693           00115     bcf trisLATCH ; data direction pin LATCH
+000096 9893           00116     bcf trisDATA ; data direction pin DATA
+000098 9A93           00117     bcf trisCLOCK ; data direction pin CLOCK
+00009A 0012           00118     return
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00008C 6F6D           00119     movwf delayvar+1
-00008E 0E26           00120 d0:   movlw d'38' ;B Value
-000090 6F6C           00121     movwf delayvar  
-000092 0000           00122     nop
-000094 2F6C           00123 d1:  decfsz delayvar,F
-000096 D7FE           00124     bra d1
-000098 2F6D           00125     decfsz delayvar+1,F
-00009A D7F9           00126     bra d0      
-00009C 0012           00127     return ;2+1+1+A[1+1+1+B+1+2B-2]+A+1+2A-2+2 => 5+A[5+3B]
-00009E                00128 delay: ;300 ms delay
-00009E 0E0A           00129     movlw .10
-0000A0 EC53 F000      00130     call delayW0ms
-0000A4 0012           00131     return
-                      00132     
-0000A6                00133 delayW0ms: ;It is neccesary load a properly value in the acumulator before use this subrutine
-0000A6 6F6E           00134     movwf delayvar+2
-0000A8 EC45 F000      00135 d2:    call delay10ms
-0000AC 2F6E           00136     decfsz delayvar+2,F
-0000AE D7FC           00137     bra d2
-0000B0 0012           00138     return     
-                      00139 ;*********************************************ISR RUTINE
-0000B2                00140 ISR:
-0000B2 0012           00141     return   
+                      00119     
+00009C                00120 initialstates: ;---------Subrutine for setting the initial states of PIC
+00009C 9289           00121     bcf pinLED2  
+00009E 9089           00122     bcf pinLED1 
+0000A0 6B60           00123     clrf accelerationX 
+0000A2 6B61           00124     clrf accelerationX+1 
+0000A4 6B62           00125     clrf accelerationY 
+0000A6 6B63           00126     clrf accelerationY+1
+0000A8 6B64           00127     clrf accelerationZ 
+0000AA 6B65           00128     clrf accelerationZ+1
+0000AC 6B66           00129     clrf gyroX 
+0000AE 6B68           00130     clrf gyroY 
+0000B0 6B6A           00131     clrf gyroZ 
+0000B2 968A           00132     bcf pinLATCH ;no latch information
+0000B4 9A8A           00133     bcf pinCLOCK ;no send +edge
+0000B6 988A           00134     bcf pinDATA ;low state data pin
+0000B8 6B70           00135     clrf sdata ;low byte (little endian)
+0000BA 6B71           00136     clrf sdata+1 ;high byte  (big endian)
+0000BC 0EAF           00137     movlw 0xAF
+0000BE 6F70           00138     movwf sdata
+0000C0 6F71           00139     movwf sdata+1
+0000C2 ECA6 F000      00140     call showdata ; Turn off all LEDs
+0000C6 0012           00141     return
                       00142     
-                      00143     END
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  6
+                      00143 ;*******************************SUBRUTINE FOR THE INITIAL CONFIGURATION OF I2C     
+0000C8                00144 configI2C:
+0000C8 8AC6           00145     bsf I2CEN ; Turn ON module SSP
+0000CA 90C6           00146     bcf SSPCON1,SSPM0 ; Mode=8 'Master mode'
+0000CC 92C6           00147     bcf SSPCON1,SSPM1
+0000CE 94C6           00148     bcf SSPCON1,SSPM2
+0000D0 86C6           00149     bsf SSPCON1,SSPM3
+0000D2 8093           00150     bsf trisSDA ; SDA as an input pin 
+0000D4 8293           00151     bsf trisSCL ; SDL as an input pin
+0000D6 8EC7           00152     bsf SlewRate ; Disenable faster mode (Not neccesary at this frecuency )
+                      00153     ;movlw (FOSC/(4*BAUD))-1
+0000D8 0E09           00154     movlw 0x09
+0000DA 6EC8           00155     movwf SSPADD  ; Setting the baud rate    
+0000DC 0C00           00156     retlw 0
+                      00157     
+                      00158 ;***********************************SUBRUTINE TO SEND DATA THROUGHT A I2C BUS
+0000DE                00159 i2c_send_byte:
+0000DE 6EC9           00160     movwf SSPBUF
+0000E0 A69E           00161     btfss PIR1,SSPIF
+0000E2 EF78 F000      00162     goto waitMSSP
+0000E6 969E           00163     bcf PIR1,SSPIF
+0000E8 BCC5           00164     btfsc SSPCON2,ACKSTAT ; ACK? oh NACK?
+0000EA EF80 F000      00165     goto failMSSP  ; was not recived and Acknowledge
+0000EE 0C00           00166     retlw 0
+                      00167     
+                      00168 ;***********************************SUBRUTINE TO WAIT A COMPLETE ACTION OF I2C
+0000F0                00169 waitMSSP:
+0000F0 A69E           00170     btfss PIR1,SSPIF
+0000F2 EF78 F000      00171     goto waitMSSP
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000F6 969E           00172     bcf PIR1,SSPIF
+0000F8 BCC5           00173     btfsc SSPCON2,ACKSTAT ; ACK? oh NACK?
+0000FA EF80 F000      00174     goto failMSSP  ; was not recived and Acknowledge
+0000FE 0C00           00175     retlw 0
+                      00176     
+                      00177 ;******************************SUBRUTINE (IT has not recived an acknowledge)    
+000100                00178 failMSSP:
+000100 7289           00179     btg pinLED2
+000102 0E01           00180     movlw 1
+000104 ECA0 F000      00181     call delayW0ms
+000108 84C5           00182     bsf STOP
+00010A EC78 F000      00183     call waitMSSP
+00010E EF0D F000      00184     goto init
+                      00185     
+                      00186 ;*******************************SUBRUTINE (SUCCESS OF IDENTIFICATION FROM SLAVE)    
+000112                00187 LOL:
+000112 7089           00188     btg pinLED1
+000114 0E01           00189     movlw 1
+000116 ECA0 F000      00190     call delayW0ms
+00011A 84C5           00191     bsf STOP
+00011C EC78 F000      00192     call waitMSSP
+000120 EF0D F000      00193     goto init
+                      00194 
+                      00195 ;*****************************;---------------------------- Generating a delay
+000124                00196 delay10ms:  ;4MHz frecuency oscillator
+000124 0E54           00197     movlw d'84'  ;A Value
+000126 6F6D           00198     movwf delayvar+1
+000128 0E26           00199 d0:   movlw d'38' ;B Value
+00012A 6F6C           00200     movwf delayvar  
+00012C 0000           00201     nop
+00012E 2F6C           00202 d1:  decfsz delayvar,F
+000130 D7FE           00203     bra d1
+000132 2F6D           00204     decfsz delayvar+1,F
+000134 D7F9           00205     bra d0      
+000136 0012           00206     return ;2+1+1+A[1+1+1+B+1+2B-2]+A+1+2A-2+2 => 5+A[5+3B]
+000138                00207 delay: ;300 ms delay
+000138 0E0A           00208     movlw .10
+00013A ECA0 F000      00209     call delayW0ms
+00013E 0012           00210     return
+                      00211     
+000140                00212 delayW0ms: ;It is neccesary load a properly value in the acumulator before use this subrutine
+000140 6F6E           00213     movwf delayvar+2
+000142 EC92 F000      00214 d2:    call delay10ms
+000146 2F6E           00215     decfsz delayvar+2,F
+000148 D7FC           00216     bra d2
+00014A 0012           00217     return     
+                      00218     
+                      00219 ;*************************************************************
+                      00220 ;------------------------------Subrutine for move data of sdata register to LEDs
+00014C                00221 showdata:
+00014C 6B72           00222     clrf count8 ;set count in 0
+00014E C070 F073      00223     movff sdata,datatmp
+000152 ECB2 F000      00224     call send8 ;send low byte
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000156 C071 F073      00225     movff sdata+1,datatmp
+00015A ECB2 F000      00226     call send8 ;send high byte
+00015E ECC1 F000      00227     call latch
+000162 0012           00228     return ; Data has been sent
+                      00229     
+000164 3373           00230 send8:    rrcf datatmp,F ; LSB -> C
+000166 B0D8           00231     btfsc STATUS,C
+000168 888A           00232     bsf pinDATA ; Carry =1 then Data=1 
+00016A A0D8           00233     btfss STATUS,C
+00016C 988A           00234     bcf pinDATA ; Carry =0 then Data=0
+00016E 2B72           00235     incf count8,F ; Increment counter
+000170 ECBE F000      00236     call pclock ; sending a positive edge 9clock)
+000174 A772           00237     btfss count8,3 ;test if count=8
+000176 D7F6           00238     bra send8 ;else, continue rotating
+000178 6B72           00239     clrf count8 ; clear counter 8 bit
+00017A 0012           00240     return
+                      00241 ;-------------------------------------Subrutine for send a positive edge (clock)    
+00017C                00242 pclock:
+00017C 8A8A           00243     bsf pinCLOCK
+                      00244    ;call delay according specifications
+00017E 9A8A           00245     bcf pinCLOCK
+000180 0012           00246     return
+                      00247 ;-----------------------------------------------Subrutine for latch data (clock)    
+000182                00248 latch:
+000182 868A           00249     bsf pinLATCH
+                      00250     ;call delay according specifications
+000184 968A           00251     bcf pinLATCH    
+000186 0012           00252     return
+                      00253     
+                      00254 ;*********************************************ISR RUTINE
+000188                00255 ISR:
+000188 0012           00256     return   
+                      00257     
+                      00258     END
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  8
 
 
 SYMBOL TABLE
@@ -324,7 +451,7 @@ BOR                               00000000
 BRG16                             00000003
 BRGH                              00000002
 BSR                               00000FE0
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  7
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE  9
 
 
 SYMBOL TABLE
@@ -383,7 +510,7 @@ CMIF                              00000006
 CMIP                              00000006
 CRC16EE                           00000002
 CRC16EF                           00000002
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  8
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 10
 
 
 SYMBOL TABLE
@@ -442,7 +569,7 @@ ENDP3                             00000006
 EPCONDIS                          00000003
 EPHSHK                            00000004
 EPINEN                            00000001
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE  9
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 11
 
 
 SYMBOL TABLE
@@ -501,7 +628,7 @@ I2C_START                         00000003
 I2C_STOP                          00000004
 IDLEIE                            00000004
 IDLEIF                            00000004
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 10
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 12
 
 
 SYMBOL TABLE
@@ -545,7 +672,7 @@ IRCF0                             00000004
 IRCF1                             00000005
 IRCF2                             00000006
 IRVST                             00000005
-ISR                               000000B2
+ISR                               00000188
 IVRST                             00000005
 LATA                              00000F89
 LATA0                             00000000
@@ -560,7 +687,7 @@ LATB0                             00000000
 LATB1                             00000001
 LATB2                             00000002
 LATB3                             00000003
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 11
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 13
 
 
 SYMBOL TABLE
@@ -576,7 +703,7 @@ LATC1                             00000001
 LATC2                             00000002
 LATC6                             00000006
 LATC7                             00000007
-LOL                               0000007E
+LOL                               00000112
 LVDCON                            00000FD2
 LVDEN                             00000004
 LVDIE                             00000002
@@ -619,7 +746,7 @@ P                                 00000004
 P1A                               00000002
 PC                                00000FF9
 PCFG0                             00000000
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 12
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 14
 
 
 SYMBOL TABLE
@@ -678,7 +805,7 @@ R                                 00000002
 RA0                               00000000
 RA1                               00000001
 RA2                               00000002
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 13
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 15
 
 
 SYMBOL TABLE
@@ -737,7 +864,7 @@ SBOREN                            00000006
 SCKP                              00000004
 SCS0                              00000000
 SCS1                              00000001
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 14
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 16
 
 
 SYMBOL TABLE
@@ -796,7 +923,7 @@ T0IP                              00000002
 T0PS0                             00000000
 T0PS1                             00000001
 T0PS2                             00000002
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 15
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 17
 
 
 SYMBOL TABLE
@@ -855,7 +982,7 @@ TMR3                              00000FB2
 TMR3CS                            00000001
 TMR3H                             00000FB3
 TMR3IE                            00000001
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 16
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 18
 
 
 SYMBOL TABLE
@@ -914,7 +1041,7 @@ TXIE                              00000004
 TXIF                              00000004
 TXIP                              00000004
 TXREG                             00000FAD
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 17
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 19
 
 
 SYMBOL TABLE
@@ -973,7 +1100,7 @@ WR                                00000001
 WREG                              00000FE8
 WREN                              00000002
 WRERR                             00000003
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 18
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 20
 
 
 SYMBOL TABLE
@@ -1032,7 +1159,7 @@ _EBTR2_ON_7L                      000000FB
 _EBTR3_OFF_7L                     000000FF
 _EBTR3_ON_7L                      000000F7
 _EBTRB_OFF_7H                     000000FF
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 19
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 21
 
 
 SYMBOL TABLE
@@ -1091,7 +1218,7 @@ _WDTPS_1024_2H                    000000F5
 _WDTPS_128_2H                     000000EF
 _WDTPS_16384_2H                   000000FD
 _WDTPS_16_2H                      000000E9
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 20
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 22
 
 
 SYMBOL TABLE
@@ -1131,52 +1258,71 @@ __18F2550                         00000001
 accelerationX                     00000060
 accelerationY                     00000062
 accelerationZ                     00000064
-configI2C                         00000048
-d0                                0000008E
-d1                                00000094
-d2                                000000A8
-delay                             0000009E
-delay10ms                         0000008A
-delayW0ms                         000000A6
+acelx                             0x3D
+configI2C                         000000C8
+count8                            00000072
+d0                                00000128
+d1                                0000012E
+d2                                00000142
+datatmp                           00000073
+delay                             00000138
+delay10ms                         00000124
+delayW0ms                         00000140
 delayvar                          0000006C
 dirGY521                          0xD0
-dirpower                          
-failMSSP                          0000006C
+dirPower                          0x6B
+failMSSP                          00000100
 gyroX                             00000066
 gyroY                             00000068
 gyroZ                             0000006A
-i2c_send_byte                     0000005E
+i2c_send_byte                     000000DE
 init                              0000001A
-initialconfig                     00000038
-initialstates                     00000042
-main                              0000000C
-MPASM 5.68                        GYMAIN.ASM   9-18-2016  13:34:21         PAGE 21
+MPASM 5.68                        GYMAIN.ASM   9-18-2016  16:45:53         PAGE 23
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+initialconfig                     0000008C
+initialstates                     0000009C
+latch                             00000182
+main                              0000000C
+pclock                            0000017C
+pinCLOCK                          LATB,5
+pinDATA                           LATB,4
+pinLATCH                          LATB,3
 pinLED1                           LATA,RA0
 pinLED2                           LATA,RA1
+rGY521                            0xD1
+sdata                             00000070
+send8                             00000164
+showdata                          0000014C
+trisCLOCK                         TRISB,5
+trisDATA                          TRISB,4
+trisLATCH                         TRISB,3
 trisLED1                          TRISA,RA0
 trisLED2                          TRISA,RA1
 trisSCL                           TRISB,RB1
 trisSDA                           TRISB,RB0
 vardir                            0000006F
-waitMSSP                          00000062
+waitMSSP                          000000F0
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
 0000 : XXXX----XXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXX------------
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0180 : XXXXXXXXXX------ ---------------- ---------------- ----------------
 0000 : XXXX-XX-XXXXXX-- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Bytes Used:   188
-Program Memory Bytes Free: 32580
+Program Memory Bytes Used:   402
+Program Memory Bytes Free: 32366
 
 
 Errors   :     0
